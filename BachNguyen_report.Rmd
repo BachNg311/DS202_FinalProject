@@ -1,0 +1,201 @@
+---
+title: "BachNguyen_report"
+author: "Bach Nguyen"
+date: "2024-12-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+
+This project is focusing on smartphone usage prediction. 
+
+## Importing libraries
+
+```{r}
+library(RColorBrewer)
+library(viridis)
+library(psych)
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+library(tidyr)
+library(corrplot)
+library(png)
+library(magick)
+```
+
+## Load & Exploring Data
+
+```{r}
+df <- read.csv("user_behavior_dataset.csv")
+
+head(df)
+
+```
+
+```{r}
+df <- df[, !names(df) %in% "User.ID"]
+df
+
+```
+
+```{r}
+dim(df)
+```
+
+```{r}
+nrow(df)
+
+ncol(df)
+```
+
+```{r}
+str(df)
+```
+
+```{r}
+summary(df)
+```
+
+```{r}
+describe(df)
+
+```
+
+```{r}
+colSums(is.na(df))
+
+```
+
+```{r}
+sum(duplicated(df))
+
+```
+
+## Explanatory Data Analysis
+
+```{r}
+
+ggplot(df, aes(x = Device.Model, fill = Device.Model)) +
+  geom_bar() +
+  labs(title = "Device Model Analysis", 
+       x = "Model", 
+       y = "Total Devices") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis_d()  # Use Viridis color palette for discrete categories
+
+```
+
+```{r}
+ggplot(df, aes(x = Operating.System, fill = Operating.System)) +
+  geom_bar() +
+  scale_fill_viridis(discrete = TRUE) +  # Viridis for discrete categories
+  labs(title = "Operating System Analysis", 
+       x = "Operating System", 
+       y = "Total Devices") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(plot.title = element_text(size = 16, hjust = 0.5))
+
+```
+
+```{r}
+ggplot(df, aes(x = Gender, fill = Gender)) +
+  geom_bar() +
+  scale_fill_brewer(palette = "Set2") +  # Use a different palette (e.g., Set2)
+  labs(title = "Gender Analysis", 
+       x = "Gender", 
+       y = "Total Devices") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
+  theme(plot.title = element_text(size = 16, hjust = 0.5))
+
+```
+
+```{r}
+columns <- c('App.Usage.Time..min.day.', 'Screen.On.Time..hours.day.',
+             'Battery.Drain..mAh.day.', 'Number.of.Apps.Installed',
+             'Data.Usage..MB.day.', 'Age')
+
+# Create individual histograms for each column
+plots <- lapply(columns, function(col) {
+  ggplot(df, aes_string(x = col)) +
+    geom_histogram(aes(y = ..density..), bins = 30, fill = "green", color = "black", alpha = 0.7) +
+    geom_density(color = "darkgreen") +
+    labs(title = col, x = gsub("\\.\\.", " ", col), y = "Density") +
+    theme_minimal()
+})
+
+combined_plot <- Reduce(`+`, plots) + plot_layout(ncol = 3)
+combined_plot
+```
+
+```{r}
+ggplot(df, aes(x = User.Behavior.Class)) +
+  geom_bar(fill = "skyblue", color = "black") +  
+  labs(title = "Dependent Feature Distribution", 
+       x = "User Behavior Class", 
+       y = "Count") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 16, hjust = 0.5),
+        axis.text.x = element_text(angle = 0, hjust = 0.5))
+```
+
+```{r}
+device_model_dummies <- model.matrix(~ Device.Model - 1, data = df)
+
+
+operating_system_dummies <- model.matrix(~ Operating.System - 1, data = df)
+
+
+df <- cbind(df, device_model_dummies, operating_system_dummies)
+
+
+df <- df %>% select(-Device.Model, -Operating.System)
+
+
+df <- df %>% mutate(Gender = ifelse(Gender == "Male", 1, 0))
+```
+
+
+```{r}
+df_long <- df %>%
+  pivot_longer(cols = everything(), names_to = "Variable", values_to = "Value")
+
+ggplot(df_long, aes(x = Variable, y = Value, fill = Variable)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, alpha = 0.7) +
+  scale_fill_viridis_d(option = "E") +  # Use a Viridis palette
+  labs(title = "Boxplot", x = NULL, y = "Value") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 75, hjust = 1),
+    legend.position = "none"
+  )
+```
+
+```{r}
+# Compute the correlation matrix
+cor_matrix <- cor(df, use = "complete.obs")
+
+# Save the heatmap to a larger figure
+png("correlation_heatmap.png", width = 1600, height = 1200, res = 150)  # Adjust dimensions and resolution
+corrplot(cor_matrix, method = "color", col = viridis(200), 
+         title = "Correlation Heatmap", addCoef.col = "white", 
+         tl.cex = 1.2, number.cex = 1.0, tl.srt = 45)
+dev.off()
+```
+
+```{r}
+library(magick)
+img <- image_read("correlation_heatmap.png")
+
+print(img)
+
+```
+
+
