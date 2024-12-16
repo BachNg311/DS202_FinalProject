@@ -1,6 +1,6 @@
 ---
-title: "BachNguyen_report"
-author: "Bach Nguyen"
+title: "Final Project"
+author: "Minh Nguyen, Bach Nguyen, Thien Nguyen"
 date: "2024-12-10"
 output: html_document
 ---
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Abstract
 
-This project is focusing on smartphone usage prediction. 
+The project focuses on analyzing smartphone usage patterns to predict user behavior. It utilizes a dataset containing variables such as screen time, app usage, and battery drain to identify key trends and correlations. By visualizing and modeling these relationships, the study aims to uncover factors that influence smartphone interaction and user categorization. The findings could provide insights into improving smartphone design, app optimization, and user experience.
 
 ## Importing libraries
 
@@ -26,21 +26,27 @@ library(tidyr)
 library(corrplot)
 library(png)
 library(magick)
+library(ggcorrplot)
+library(gridExtra)
 ```
+
+## Data
+
+The dataset contains information about smartphone usage patterns for 700 users, including demographic and behavioral variables. Key variables include app usage time (in minutes per day), screen-on time (in hours per day), battery drain (in mAh), and data usage (in MB per day). Demographic attributes such as age, gender, and operating system (Android/iOS) are also included, along with the number of apps installed on each device. The target variable, user behavior class, categorizes users based on their smartphone interaction. These variables collectively provide a comprehensive view of user behavior, enabling detailed analysis and prediction.
+
+Data link: https://www.kaggle.com/datasets/valakhorasani/mobile-device-usage-and-user-behavior-dataset/data
+
 
 ## Load & Exploring Data
 
 ```{r}
 df <- read.csv("user_behavior_dataset.csv")
-
 head(df)
-
 ```
 
 ```{r}
 df <- df[, !names(df) %in% "User.ID"]
-df
-
+tail(df)
 ```
 
 ```{r}
@@ -49,7 +55,6 @@ dim(df)
 
 ```{r}
 nrow(df)
-
 ncol(df)
 ```
 
@@ -197,5 +202,55 @@ img <- image_read("correlation_heatmap.png")
 print(img)
 
 ```
+```{r}
+df$Gender <- as.factor(df$Gender)
+cor_data <- df %>%
+  select(App.Usage.Time..min.day., Screen.On.Time..hours.day., Battery.Drain..mAh.day., 
+         Number.of.Apps.Installed, Data.Usage..MB.day., Age)
+cor_matrix <- cor(cor_data)
+corr_plot <- ggcorrplot(cor_matrix, lab = TRUE, title = "Correlation Heatmap")
+corr_plot
+```
 
+```{r}
+screen_gender_plot <- ggplot(df, aes(x = Gender, y = Screen.On.Time..hours.day.)) +
+  geom_boxplot(fill = "skyblue") +
+  labs(title = "Screen On Time by Gender", x = "Gender", y = "Screen On Time (hours/day)") +
+  theme_minimal()
+screen_gender_plot
+```
+```{r}
+scatter_plot <- ggplot(df, aes(x = Screen.On.Time..hours.day., y = Battery.Drain..mAh.day.)) +
+  geom_point(alpha = 0.6, color = "blue") +
+  labs(title = "Screen Time vs. Battery Drain", x = "Screen On Time (hours/day)", y = "Battery Drain (mAh/day)") +
+  theme_minimal()
+scatter_plot
+```
 
+```{r}
+usage_histogram <- ggplot(df, aes(x = App.Usage.Time..min.day.)) +
+  geom_histogram(binwidth = 30, fill = "purple", color = "black") +
+  labs(title = "Histogram of App Usage Time", x = "App Usage Time (min/day)", y = "Frequency") +
+  theme_minimal()
+usage_histogram
+```
+
+```{r}
+age_behavior_plot <- ggplot(df, aes(x = factor(User.Behavior.Class), y = Age)) +
+  geom_boxplot(fill = "lightgreen") +
+  labs(title = "Age Distribution by User Behavior Class", x = "User Behavior Class", y = "Age") +
+  theme_minimal()
+age_behavior_plot
+```
+```{r}
+gender_behavior_plot <- ggplot(df, aes(x = Gender, fill = factor(User.Behavior.Class))) +
+  geom_bar(position = "fill") +
+  labs(title = "Proportion of Behavior Classes by Gender", x = "Gender", y = "Proportion", fill = "Behavior Class") +
+  theme_minimal()
+gender_behavior_plot
+
+```
+
+## Conclusion
+
+The conclusions drawn from this analysis logically follow the results and findings. The study revealed significant correlations between key variables such as screen time, battery drain, and app usage, highlighting their impact on user behavior. These insights provide a foundation for deeper exploration into personalized smartphone experiences and optimizing app design for better energy efficiency. Further questions arise regarding how external factors, such as work habits or cultural differences, influence smartphone usage patterns. Future research could expand on this work by incorporating longitudinal data to observe changes in behavior over time or exploring the impact of emerging technologies, such as wearable devices, on user interaction. These directions could provide a more comprehensive understanding of digital behavior in an increasingly connected world.
