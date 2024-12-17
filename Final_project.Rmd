@@ -1,13 +1,8 @@
 ---
 title: "Final Project DS 202"
 author: "Minh Nguyen, Bach Nguyen, Thien Nguyen"
-<<<<<<< HEAD
 date: "2024-12-17"
 output: github_document  
-=======
-date: "2024-12-10"
-output: html_document
->>>>>>> 1de9c935fa86ec472f20ce72e59a022a51ffa14d
 ---
 
 ```{r setup, include=FALSE}
