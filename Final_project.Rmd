@@ -1,8 +1,8 @@
 ---
-title: "Final Project"
+title: "Final Project DS 202"
 author: "Minh Nguyen, Bach Nguyen, Thien Nguyen"
-date: "2024-12-10"
-output: github_document
+date: "2024-12-17"
+output: github_document  
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +11,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Abstract
 
-The project focuses on analyzing smartphone usage patterns to predict user behavior. It utilizes a dataset containing variables such as screen time, app usage, and battery drain to identify key trends and correlations. By visualizing and modeling these relationships, the study aims to uncover factors that influence smartphone interaction and user categorization. The findings could provide insights into improving smartphone design, app optimization, and user experience.
+This study analyzes mobile device usage patterns and user behavior classifications based on various metrics such as **App Usage Time**, **Screen-On Time**, **Battery Drain**, **Data Usage**, and **Number of Apps Installed**. The dataset includes 700 users categorized into **five behavior classes**, ranging from **light (Class 1)** to **extreme usage (Class 5)**. Results show that higher behavior classes are associated with increased Screen-On Time, Battery Drain, and Data Usage, highlighting strong positive relationships among these usage metrics. Gender differences were observed, with **males** generally dominating higher behavior classes, while females in **Class 5** displayed slightly higher Screen-On Time. Age, however, showed no significant correlation with usage metrics. These findings provide insights into user behavior trends, emphasizing how device usage patterns escalate with user behavior intensity.
+
+## Introduction
+
+Understanding mobile device usage patterns is crucial in today's digital age, where smartphones play a significant role in daily life. This study explores user behavior by analyzing metrics such as **App Usage Time**, **Screen-On Time**, **Battery Drain**, **Number of Apps Installed**, and **Data Usage**. Users are categorized into **five behavior classes**, ranging from **light usage (Class 1)** to **extreme usage (Class 5)**. The analysis highlights key trends, such as increased Screen-On Time and Data Usage with higher behavior classes, as well as slight gender differences in usage intensity. By uncovering these patterns, this study provides insights into user habits and lays the groundwork for developing predictive models to classify behavior, optimize app performance, and improve digital well-being strategies.
 
 ## Importing libraries
 
@@ -32,10 +36,26 @@ library(gridExtra)
 
 ## Data
 
-The dataset contains information about smartphone usage patterns for 700 users, including demographic and behavioral variables. Key variables include app usage time (in minutes per day), screen-on time (in hours per day), battery drain (in mAh), and data usage (in MB per day). Demographic attributes such as age, gender, and operating system (Android/iOS) are also included, along with the number of apps installed on each device. The target variable, user behavior class, categorizes users based on their smartphone interaction. These variables collectively provide a comprehensive view of user behavior, enabling detailed analysis and prediction.
+The dataset contains **700 records** of mobile device usage behavior, with users categorized into **five behavior classes** ranging from **light usage (Class 1)** to **extreme usage (Class 5)**. Each record includes the following features:  
 
-Data link: https://www.kaggle.com/datasets/valakhorasani/mobile-device-usage-and-user-behavior-dataset/data
+1. **App Usage Time (minutes/day)**: Total time spent using mobile applications each day.  
+2. **Screen-On Time (hours/day)**: The number of hours the device screen remains active per day.  
+3. **Battery Drain (mAh/day)**: The daily battery consumption in milliampere-hours.  
+4. **Number of Apps Installed**: Total number of applications installed on the device.  
+5. **Data Usage (MB/day)**: The total amount of mobile data consumed per day.  
+6. **Age**: Age of the user in years.  
+7. **Gender**: Gender of the user, categorized as **Male** or **Female**.  
+8. **User Behavior Class**: A categorical variable representing user behavior intensity, with values:  
+   - **1**: Light usage  
+   - **2**: Light-to-moderate usage  
+   - **3**: Moderate usage  
+   - **4**: Heavy usage  
+   - **5**: Extreme usage  
 
+This dataset allows for the analysis of relationships between user behavior classes and various device usage metrics, enabling the identification of trends and patterns across different user groups.
+
+
+Data link: <https://www.kaggle.com/datasets/valakhorasani/mobile-device-usage-and-user-behavior-dataset/data>
 
 ## Load & Exploring Data
 
@@ -73,7 +93,6 @@ describe(df)
 
 ```{r}
 colSums(is.na(df))
-
 ```
 
 ```{r}
@@ -84,19 +103,47 @@ sum(duplicated(df))
 ## Explanatory Data Analysis
 
 ```{r}
+# Distribution of User Behavior Classes
+ggplot(df, aes(x = as.factor(User.Behavior.Class))) +
+  geom_bar(fill = "skyblue") +
+  labs(title = "Distribution of User Behavior Classes",
+       x = "User Behavior Class",
+       y = "Count") +
+  theme_minimal()
+```
 
-ggplot(df, aes(x = Device.Model, fill = Device.Model)) +
+The graph shows the distribution of User Behavior Classes, ranging from 1 (light usage) to 5 (extreme usage). The counts across the classes are fairly balanced, with Class 2 (light-to-moderate usage) having the highest number of users. Classes 3, 4, and 5, representing increasing levels of usage intensity, have slightly fewer users but remain consistent in size. Interestingly, Class 1 (light usage) also holds a significant proportion, suggesting that a notable portion of users exhibit minimal device usage. Overall, the balanced distribution across all classes ensures reliable insights for understanding and predicting user behavior trends.
+
+
+```{r}
+# The distribtuion of age by User Behavior Class
+age_behavior_plot <- ggplot(df, aes(x = factor(User.Behavior.Class), y = Age)) +
+  geom_boxplot(fill = "lightgreen") +
+  labs(title = "Age Distribution by User Behavior Class", x = "User Behavior Class", y = "Age") +
+  theme_minimal()
+age_behavior_plot
+```
+
+This boxplot shows the age distribution for each User Behavior Class from light (1) to extreme (5) usage. The median age for all classes is around 40 years, with no big differences between the groups. Class 1 (light usage) has a slightly younger median and less variation compared to the other classes. Overall, the ages in all classes range from about 20 to 60 years, showing that user behavior doesn't change much with age.
+
+```{r}
+# The distribution of gender analysis
+ggplot(df, aes(x = Gender, fill = Gender)) +
   geom_bar() +
-  labs(title = "Device Model Analysis", 
-       x = "Model", 
+  scale_fill_brewer(palette = "Set2") +  # Use a different palette (e.g., Set2)
+  labs(title = "Gender Analysis", 
+       x = "Gender", 
        y = "Total Devices") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_fill_viridis_d()  # Use Viridis color palette for discrete categories
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
+  theme(plot.title = element_text(size = 16, hjust = 0.5))
 
 ```
 
+The bar chart shows the number of users by gender. There are slightly more male users than female users in this dataset. Both groups have similar totals, with males having a small lead. This means the data is fairly even, which is good for comparing behavior between genders.
+
 ```{r}
+# The distribution of operating sytem analysis
 ggplot(df, aes(x = Operating.System, fill = Operating.System)) +
   geom_bar() +
   scale_fill_viridis(discrete = TRUE) +  # Viridis for discrete categories
@@ -109,18 +156,71 @@ ggplot(df, aes(x = Operating.System, fill = Operating.System)) +
 
 ```
 
+The bar chart shows the number of users for each Operating System. Most users in this dataset use Android, while fewer users use iOS. The difference is large, with Android having more than twice as many users as iOS. This suggests that Android devices are much more common among the users in this dataset.
+
 ```{r}
-ggplot(df, aes(x = Gender, fill = Gender)) +
-  geom_bar() +
-  scale_fill_brewer(palette = "Set2") +  # Use a different palette (e.g., Set2)
-  labs(title = "Gender Analysis", 
-       x = "Gender", 
-       y = "Total Devices") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 0, hjust = 0.5)) +
-  theme(plot.title = element_text(size = 16, hjust = 0.5))
+# Correlation heatmap
+df$Gender <- as.factor(df$Gender)
+cor_data <- df %>%
+  select(App.Usage.Time..min.day., Screen.On.Time..hours.day., Battery.Drain..mAh.day., 
+         Number.of.Apps.Installed, Data.Usage..MB.day., Age)
+cor_matrix <- cor(cor_data)
+corr_plot <- ggcorrplot(cor_matrix, lab = TRUE, title = "Correlation Heatmap")
+corr_plot
+```
+
+The correlation heatmap shows how different variables are related to each other. App Usage Time, Screen-On Time, Battery Drain, Number of Apps Installed, and Data Usage all have very strong positive correlations (close to 1), meaning they increase together. However, Age has no clear relationship with any of the other variables, as its correlation values are close to zero. Overall, the strong relationships among App Usage Time (minutes per day), Screen-On Time (hours per day), Battery Drain (mAh per day), Number of Apps Installed, and Data Usage (MB per day) suggest that these metrics are closely connected to how users interact with their devices.
+
+```{r}
+# Screen-On Time vs User Behavior Class
+ggplot(df, aes(x = Screen.On.Time..hours.day., y = as.factor(User.Behavior.Class))) +
+  geom_boxplot(fill = "lightgreen") +
+  labs(title = "Screen-On Time vs User Behavior Class",
+       x = "Screen-On Time (hours/day)",
+       y = "User Behavior Class") +
+  theme_minimal()
 
 ```
+
+The boxplot shows the relationship between Screen-On Time and User Behavior Class. As the User Behavior Class increases from 1 (light usage) to 5 (extreme usage), the Screen-On Time also increases. Users in Class 1 have the lowest Screen-On Time, around 1 to 2 hours per day, while users in Class 5 have the highest Screen-On Time, around 10 to 12 hours per day. It suggests that Screen-On Time is a strong indicator of user behavior, with higher usage classes spending more time on their devices.
+
+```{r}
+# Battery Drain vs User Behavior Class
+ggplot(df, aes(x = Battery.Drain..mAh.day., y = as.factor(User.Behavior.Class))) +
+  geom_boxplot(fill = "lightcoral") +
+  labs(title = "Battery Drain vs User Behavior Class",
+       x = "Battery Drain (mAh/day)",
+       y = "User Behavior Class") +
+  theme_minimal()
+```
+
+The boxplot shows the relationship between Battery Drain and User Behavior Class. As the User Behavior Class increases from 1 (light usage) to 5 (extreme usage), the Battery Drain also increases. Users in Class 1 have the lowest Battery Drain, around 300 to 600 mAh/day, while users in Class 5 have the highest Battery Drain, around 2500 to 3000 mAh/day. It suggests that higher usage behavior leads to more battery consumption, which makes sense as increased activity drains the battery faster.
+
+```{r}
+# Data Usage vs User Behavior Class
+ggplot(df, aes(x = Data.Usage..MB.day., y = as.factor(User.Behavior.Class))) +
+  geom_boxplot(fill = "gold") +
+  labs(title = "Data Usage vs User Behavior Class",
+       x = "Data Usage (MB/day)",
+       y = "User Behavior Class") +
+  theme_minimal()
+
+```
+
+The boxplot shows the relationship between Data Usage and User Behavior Class. As the User Behavior Class increases from 1 (light usage) to 5 (extreme usage), the Data Usage also increases. Users in Class 1 use the least data, around 100 to 300 MB/day, while users in Class 5 have the highest data usage, around 2000 to 2500 MB/day. It suggests that users with higher behavior classes consume more data daily, likely due to increased app usage, streaming, or other online activities.
+
+```{r}
+# Number of Apps Installed vs User Behavior Class
+ggplot(df, aes(x = Number.of.Apps.Installed, y = as.factor(User.Behavior.Class))) +
+  geom_boxplot(fill = "purple") +
+  labs(title = "Number of Apps Installed vs User Behavior Class",
+       x = "Number of Apps Installed",
+       y = "User Behavior Class") +
+  theme_minimal()
+
+```
+
+The boxplot shows the relationship between the Number of Apps Installed and User Behavior Class. As the User Behavior Class increases from 1 (light usage) to 5 (extreme usage), the number of apps installed also increases. Users in Class 1 have the fewest apps, around 10 to 20, while users in Class 5 have the most, around 80 to 100 apps. It suggests that users with higher behavior classes tend to install and use more apps, which is likely tied to their heavier device usage.
 
 ```{r}
 columns <- c('App.Usage.Time..min.day.', 'Screen.On.Time..hours.day.',
@@ -140,117 +240,55 @@ combined_plot <- Reduce(`+`, plots) + plot_layout(ncol = 3)
 combined_plot
 ```
 
-```{r}
-ggplot(df, aes(x = User.Behavior.Class)) +
-  geom_bar(fill = "skyblue", color = "black") +  
-  labs(title = "Dependent Feature Distribution", 
-       x = "User Behavior Class", 
-       y = "Count") +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 16, hjust = 0.5),
-        axis.text.x = element_text(angle = 0, hjust = 0.5))
-```
+The histograms show the distribution of six variables: App Usage Time, Screen-On Time, Battery Drain, Number of Apps Installed, Data Usage, and Age. Most variables, like App Usage Time, Screen-On Time, and Data Usage, are skewed to the right, meaning many users have lower values while a few have very high values. Battery Drain and Number of Apps Installed are more spread out across their ranges, with no clear concentration in a specific area. The Age distribution is fairly uniform, showing a balanced spread of users across different age groups. It suggests that most usage metrics vary widely, with certain users driving the higher values.
 
 ```{r}
-device_model_dummies <- model.matrix(~ Device.Model - 1, data = df)
-
-
-operating_system_dummies <- model.matrix(~ Operating.System - 1, data = df)
-
-
-df <- cbind(df, device_model_dummies, operating_system_dummies)
-
-
-df <- df %>% select(-Device.Model, -Operating.System)
-
-
-df <- df %>% mutate(Gender = ifelse(Gender == "Male", 1, 0))
-```
-
-
-```{r}
-df_long <- df %>%
-  pivot_longer(cols = everything(), names_to = "Variable", values_to = "Value")
-
-ggplot(df_long, aes(x = Variable, y = Value, fill = Variable)) +
-  geom_boxplot(outlier.color = "red", outlier.shape = 16, alpha = 0.7) +
-  scale_fill_viridis_d(option = "E") +  # Use a Viridis palette
-  labs(title = "Boxplot", x = NULL, y = "Value") +
-  theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 75, hjust = 1),
-    legend.position = "none"
-  )
-```
-
-```{r}
-# Compute the correlation matrix
-cor_matrix <- cor(df, use = "complete.obs")
-
-# Save the heatmap to a larger figure
-png("correlation_heatmap.png", width = 1600, height = 1200, res = 150)  # Adjust dimensions and resolution
-corrplot(cor_matrix, method = "color", col = viridis(200), 
-         title = "Correlation Heatmap", addCoef.col = "white", 
-         tl.cex = 1.2, number.cex = 1.0, tl.srt = 45)
-dev.off()
-```
-
-```{r}
-library(magick)
-img <- image_read("correlation_heatmap.png")
-
-print(img)
-
-```
-```{r}
-df$Gender <- as.factor(df$Gender)
-cor_data <- df %>%
-  select(App.Usage.Time..min.day., Screen.On.Time..hours.day., Battery.Drain..mAh.day., 
-         Number.of.Apps.Installed, Data.Usage..MB.day., Age)
-cor_matrix <- cor(cor_data)
-corr_plot <- ggcorrplot(cor_matrix, lab = TRUE, title = "Correlation Heatmap")
-corr_plot
-```
-
-```{r}
-screen_gender_plot <- ggplot(df, aes(x = Gender, y = Screen.On.Time..hours.day.)) +
-  geom_boxplot(fill = "skyblue") +
-  labs(title = "Screen On Time by Gender", x = "Gender", y = "Screen On Time (hours/day)") +
+# Distribution of User Behavior Class by Gender
+ggplot(df, aes(x = as.factor(User.Behavior.Class), fill = Gender)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Distribution of User Behavior Classes by Gender",
+       x = "User Behavior Class",
+       y = "Count",
+       fill = "Gender") +
   theme_minimal()
-screen_gender_plot
-```
-```{r}
-scatter_plot <- ggplot(df, aes(x = Screen.On.Time..hours.day., y = Battery.Drain..mAh.day.)) +
-  geom_point(alpha = 0.6, color = "blue") +
-  labs(title = "Screen Time vs. Battery Drain", x = "Screen On Time (hours/day)", y = "Battery Drain (mAh/day)") +
-  theme_minimal()
-scatter_plot
 ```
 
-```{r}
-usage_histogram <- ggplot(df, aes(x = App.Usage.Time..min.day.)) +
-  geom_histogram(binwidth = 30, fill = "purple", color = "black") +
-  labs(title = "Histogram of App Usage Time", x = "App Usage Time (min/day)", y = "Frequency") +
-  theme_minimal()
-usage_histogram
-```
+The bar chart shows the distribution of User Behavior Classes by gender, where classes range from 1 (light usage) to 5 (extreme usage). Males generally have higher counts in most classes compared to females. In Class 1 (light usage), males slightly outnumber females. Class 3 (moderate usage) shows a balanced count between males and females. However, in Class 5 (extreme usage), males have a noticeably higher count, suggesting that males are more likely to fall into the heavy usage categories.
 
 ```{r}
-age_behavior_plot <- ggplot(df, aes(x = factor(User.Behavior.Class), y = Age)) +
-  geom_boxplot(fill = "lightgreen") +
-  labs(title = "Age Distribution by User Behavior Class", x = "User Behavior Class", y = "Age") +
+# Screen-On Time vs User Behavior Class by Gender
+ggplot(df, aes(x = as.factor(User.Behavior.Class), y = Screen.On.Time..hours.day., fill = Gender)) +
+  geom_boxplot() +
+  labs(title = "Screen-On Time by User Behavior Class and Gender",
+       x = "User Behavior Class",
+       y = "Screen-On Time (hours/day)",
+       fill = "Gender") +
   theme_minimal()
-age_behavior_plot
 ```
-```{r}
-gender_behavior_plot <- ggplot(df, aes(x = Gender, fill = factor(User.Behavior.Class))) +
-  geom_bar(position = "fill") +
-  labs(title = "Proportion of Behavior Classes by Gender", x = "Gender", y = "Proportion", fill = "Behavior Class") +
-  theme_minimal()
-gender_behavior_plot
 
+The boxplot shows the Screen-On Time by User Behavior Class and Gender. As the User Behavior Class increases from 1 (light usage) to 5 (extreme usage), Screen-On Time also increases for both genders. In Class 1 and 2, males and females have similar Screen-On Time, ranging between 2 to 4 hours/day. However, in Class 5 (extreme usage), females tend to have slightly higher Screen-On Time, with values reaching around 12 hours/day, compared to males. This suggests that in heavier usage classes, Screen-On Time increases significantly, with slight gender differences.
+
+```{r}
+
+# Screen-On Time vs User Behavior Class by Age Group
+df$Age.Group <- cut(df$Age, 
+                    breaks = c(18, 25, 35, 45, 60), 
+                    labels = c("18-25", "26-35", "36-45", "46-59"),
+                    include.lowest = TRUE)
+
+ggplot(df, aes(x = as.factor(User.Behavior.Class), 
+               y = Screen.On.Time..hours.day., 
+               fill = Age.Group)) +
+  geom_boxplot() +
+  labs(title = "Screen-On Time by User Behavior Class and Age Group",
+       x = "User Behavior Class",
+       y = "Screen-On Time (hours/day)",
+       fill = "Age Group") +
+  theme_minimal()
 ```
 
 ## Conclusion
 
-The conclusions drawn from this analysis logically follow the results and findings. The study revealed significant correlations between key variables such as screen time, battery drain, and app usage, highlighting their impact on user behavior. These insights provide a foundation for deeper exploration into personalized smartphone experiences and optimizing app design for better energy efficiency. Further questions arise regarding how external factors, such as work habits or cultural differences, influence smartphone usage patterns. Future research could expand on this work by incorporating longitudinal data to observe changes in behavior over time or exploring the impact of emerging technologies, such as wearable devices, on user interaction. These directions could provide a more comprehensive understanding of digital behavior in an increasingly connected world.
+The exploratory data analysis (EDA) of the dataset reveals significant trends in mobile device usage behavior across five user behavior classes ranging from light to extreme usage. Key findings show that as the behavior class increases, Screen-On Time, App Usage Time, Battery Drain, Number of Apps Installed, and Data Usage also increase, suggesting a strong connection between user behavior intensity and these metrics. Gender differences were observed, with males generally dominating higher behavior classes, while females in Class 5 displayed slightly higher Screen-On Time. Age, however, showed no significant relationship with any usage metrics.
+
+For further investigation, a predictive model could be developed to classify users into behavior classes based on device usage metrics. Techniques such as logistic regression, decision trees, or machine learning models (e.g., Random Forest, XGBoost) can be applied to identify key predictors of behavior classes. Additionally, further analysis can explore time-based trends (e.g., daily or hourly usage patterns) and investigate how specific app categories contribute to behavior intensity. This work provides a strong foundation for understanding user behavior and optimizing strategies for app developers, device manufacturers, or digital well-being initiatives.
