@@ -1,7 +1,6 @@
 Final Project DS 202
 ================
 Minh Nguyen, Bach Nguyen, Thien Nguyen
-
 2024-12-17
 
 ## Abstract
@@ -20,6 +19,59 @@ higher Screen-On Time. Age, however, showed no significant correlation
 with usage metrics. These findings provide insights into user behavior
 trends, emphasizing how device usage patterns escalate with user
 behavior intensity.
+
+## Main Analysis - Curiosity
+
+The analysis demonstrates a deep exploration of mobile device usage
+patterns, focusing on key metrics like Screen-On Time, App Usage Time,
+and Battery Drain to understand user behavior classes. Several trials
+were conducted to identify trends, including examining correlations,
+gender differences, and age distributions. The findings were refined to
+present the most meaningful insights, such as the strong positive
+relationships between usage metrics and behavior intensity. Additional
+research and visualizations were used to validate these observations,
+providing a clear explanation of how user behavior escalates across
+different classes and highlighting areas for further investigation.
+
+## Main analysis - Skepticism
+
+The analysis critically examined the findings by using multiple
+approaches, such as correlation heatmaps, boxplots, and histograms, to
+verify relationships between variables. Unintuitive results, like the
+lack of correlation between **Age** and other usage metrics, were
+cross-checked with different visualizations to ensure accuracy. The
+consistency of trends, such as the strong positive correlations between
+**Screen-On Time**, **Battery Drain**, and **Data Usage**, was validated
+across various techniques. This careful approach ensured the results
+were reliable and reflected true user behavior patterns.
+
+## Main analysis - Organization
+
+The analysis of mobile device usage patterns focuses on exploring the
+relationships between **User Behavior Classes** and key metrics, such as
+**Screen-On Time**, **Battery Drain**, **Data Usage**, and **Number of
+Apps Installed**, while also considering **Gender** and **Age Groups**.
+Users were categorized into five classes, ranging from **light usage
+(Class 1)** to **extreme usage (Class 5)**. Boxplots revealed that
+**Screen-On Time**, **Battery Drain**, and **Data Usage** increased
+steadily with higher behavior classes, suggesting that these metrics are
+strong indicators of usage intensity. Gender-based analysis showed that
+males generally dominate heavier behavior classes, but in **Class 5**,
+females exhibited slightly higher **Screen-On Time**.
+
+Additionally, the data was analyzed across **Age Groups** to understand
+variations within behavior classes. Results showed that **Screen-On
+Time** increased consistently with behavior classes across all age
+groups, with no major differences among age categories. Histograms of
+key metrics like App Usage Time, Battery Drain, and Data Usage revealed
+right-skewed distributions, where most users had lower values, but a few
+exhibited very high usage. The correlation heatmap confirmed strong
+positive relationships between metrics like **Screen-On Time**, **App
+Usage Time**, and **Battery Drain**, while **Age** showed no significant
+correlation with any metric. This systematic analysis highlights the
+strong connections between user behavior classes and device usage
+metrics, providing a clear understanding of patterns and trends across
+different user groups.
 
 ## Introduction
 
@@ -87,6 +139,11 @@ library(patchwork)
 
 ``` r
 library(tidyr)
+```
+
+    ## Warning: package 'tidyr' was built under R version 4.4.2
+
+``` r
 library(corrplot)
 ```
 
@@ -114,6 +171,8 @@ library(ggcorrplot)
 ``` r
 library(gridExtra)
 ```
+
+    ## Warning: package 'gridExtra' was built under R version 4.4.2
 
     ## 
     ## Attaching package: 'gridExtra'
